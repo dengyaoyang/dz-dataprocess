@@ -3,6 +3,7 @@ package com.cecgw.cq.entity;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * RFID解析表
@@ -14,7 +15,7 @@ import javax.persistence.Table;
 public class RFID_ANALYZE {
 	@Id
 	private Long id;
-	private String time;
+	private Date time;
 	private String readerip;
 	private String c1;
 	private String c2;
@@ -42,12 +43,24 @@ public class RFID_ANALYZE {
 		this.id = id;
 	}
 
-	public String getTime() {
+	/**
+	 * <tt>time</tt>属性的Getter方法.
+	 *
+	 * @return time
+	 */
+	public Date getTime() {
 		return time;
 	}
-	public void setTime(String time) {
+
+	/**
+	 * <tt>time</tt> 的Setter方法.
+	 *
+	 * @param time 成员变量的值被设置成 time
+	 */
+	public void setTime(Date time) {
 		this.time = time;
 	}
+
 	public String getReaderip() {
 		return readerip;
 	}

@@ -39,6 +39,7 @@ public class FlowCountServiceImpl implements FlowCountService {
     JdbcTemplate jdbcTemplate;
     @Autowired
     VehicleFlowService vehicleFlowService;
+
     private int flag5 = 0;
     private int Flag1=0;
 
