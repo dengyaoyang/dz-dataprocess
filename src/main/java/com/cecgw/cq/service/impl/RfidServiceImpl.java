@@ -81,8 +81,8 @@ public class RfidServiceImpl implements RfidService{
                 //取到了就删除Redis中已得到的开始和结束数据
                 jedisUtil.delListVal("startRfid",sJson);
                 jedisUtil.delListVal("endRfid",eJson);
-                String startStr = startRfidObj.getTime();
-                String endStr = endRfid.get(i).getTime();
+                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
+                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
                 LocalDateTime startDate = TimeUtil.createRfcTime(startStr);
                 LocalDateTime endDate = TimeUtil.createRfcTime(endStr);
                 //判断2个时间发生在同一天

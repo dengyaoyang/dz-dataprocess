@@ -26,6 +26,8 @@ public class TimeUtil {
     public static final DateTimeFormatter FUALLDATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final DateTimeFormatter YM = DateTimeFormatter.ofPattern("yyyy-MM");
     public static final DateTimeFormatter RFC = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy",Locale.US);
+    public static final String RFC_CODE = "EEE MMM dd HH:mm:ss zzz yyyy";
+    public static final String FULL_CODE = "yyyy-MM-dd HH:mm:ss";
 
     //获取当前时间的前n分钟
     public static LocalDateTime beforeThree(int n){
