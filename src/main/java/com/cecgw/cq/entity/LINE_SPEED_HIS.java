@@ -18,8 +18,6 @@ import javax.persistence.Table;
 @Data
 public class LINE_SPEED_HIS {
     @Id
-    @GeneratedValue(generator = "timeID")
-    @GenericGenerator(name = "timeID", strategy = "com.cecgw.cq.util.IdGen")
     private Long line_id;
     private String speed;
     private String create_time;

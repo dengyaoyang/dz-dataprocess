@@ -14,8 +14,6 @@ import java.util.Date;
 @Data
 public class LINE_SPEED_CONF {
 	@Id
-	@GeneratedValue(generator = "timeID")
-	@GenericGenerator(name = "timeID", strategy = "com.cecgw.cq.util.IdGen")
 	private Long id;
 	private String start_point;
 	private String terminal;

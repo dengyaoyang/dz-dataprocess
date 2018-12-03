@@ -19,8 +19,6 @@ import java.util.Date;
 @Data
 public class RFID_ANALYZE {
 	@Id
-	@GeneratedValue(generator = "timeID")
-	@GenericGenerator(name = "timeID", strategy = "com.cecgw.cq.util.IdGen")
 	private Long id;
 	private Date time;
 	private String readerip;

@@ -18,8 +18,6 @@ import javax.persistence.Table;
 @Data
 public class RFID_ANALYZE_DAY {
     @Id
-    @GeneratedValue(generator = "timeID")
-    @GenericGenerator(name = "timeID", strategy = "com.cecgw.cq.util.IdGen")
     private Long id;
     private String time;
     private String readerip;
