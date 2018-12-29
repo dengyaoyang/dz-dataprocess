@@ -16,9 +16,11 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -83,13 +85,13 @@ public class RfidServiceImpl implements RfidService{
                 jedisUtil.delListVal("endRfid",eJson);
                 String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
                 String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
-                LocalDateTime startDate = TimeUtil.createRfcTime(startStr);
-                LocalDateTime endDate = TimeUtil.createRfcTime(endStr);
+                Date startDate = new Date(Long.valueOf(startStr));
+                Date endDate = new Date(Long.valueOf(endStr));
                 //判断2个时间发生在同一天
-                if (startDate.getDayOfMonth() == endDate.getDayOfMonth()) {
+                if (TimeUtil.getDayOfMouth(startDate) == TimeUtil.getDayOfMouth(endDate)) {
                     //判断结束时间是否大于起始时间
-                    if (endDate.isAfter(startDate)) {
-                        int timeDiff = endDate.getSecond() - startDate.getSecond();
+                    if (TimeUtil.getDayOfSec(endDate)> TimeUtil.getDayOfSec(startDate)) {
+                        int timeDiff =TimeUtil.getDayOfSec(endDate) - TimeUtil.getDayOfSec(startDate);
                         //根据时间差算速度.
                         double speed = Double.parseDouble(conf.get(j).getDistance())/(timeDiff);
                         speedList.add(speed);
@@ -135,9 +137,8 @@ public class RfidServiceImpl implements RfidService{
     }
 
     public static void main(String[] args) {
-       List<String> list = new ArrayList();
-       list.add("1");
-       list.add("2");
-        System.out.println(list.toString());
+        LocalDateTime startDate = TimeUtil.createRfcTime("1544603739000");
+        LocalDateTime endDate = TimeUtil.createRfcTime("1544603739000");
+        System.out.println(endDate.getSecond() - startDate.getSecond());
     }
 }

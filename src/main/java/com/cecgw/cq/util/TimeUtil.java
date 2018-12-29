@@ -134,4 +134,18 @@ public class TimeUtil {
         return Optional.of("");
     }
 
+    //返回当月天数
+    public static  int  getDayOfMouth(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.DAY_OF_MONTH);
+    }
+
+    //返回当月天数
+    public static  int  getDayOfSec(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.SECOND);
+    }
+
 }
