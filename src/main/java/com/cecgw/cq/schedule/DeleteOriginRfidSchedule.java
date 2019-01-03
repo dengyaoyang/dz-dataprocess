@@ -19,7 +19,7 @@ public class DeleteOriginRfidSchedule {
      * 每天清空一次Redis origin_rfid
      */
 
-    @Scheduled(cron = "0 30 0 * * *" )
+//    @Scheduled(cron = "0 30 0 * * *" )
     public void dayTask(){
         deleteOriginRfidService.deleteData();
     }

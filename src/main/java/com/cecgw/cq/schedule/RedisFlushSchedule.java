@@ -21,7 +21,7 @@ public class RedisFlushSchedule {
     @Autowired
     private   RedisFlushService redisFlushService;
 
-    @Scheduled(cron = "59 59 23 * * ?")
+//    @Scheduled(cron = "59 59 23 * * ?")
     public void flushRedis(){
         String tableName1="t_epc_dict_1";
         String tableName2="t_epc_dict_1_copy1";

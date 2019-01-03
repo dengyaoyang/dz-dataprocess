@@ -15,7 +15,7 @@ public class SpeedSchedule {
     @Autowired
     RfidService rfidService;
 
-//    @Scheduled(cron = "0/2 * * * * ? ")
+    @Scheduled(cron = "0/40 * * * * ? ")
     public void speedTask(){
         rfidService.calculateSpeed();
     }

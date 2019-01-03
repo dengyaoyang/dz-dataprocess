@@ -28,7 +28,7 @@ public class ReaderFlowCountSchedule {
     /**
      * 分车型统计的车流量------5min(最小时间)
      */
-    @Scheduled(cron = "0 0/5 * * * ?")
+//    @Scheduled(cron = "0 0/5 * * * ?")
     public void calVehicleFlowCount5min(){
         //此时此刻
         Calendar current = Calendar.getInstance();

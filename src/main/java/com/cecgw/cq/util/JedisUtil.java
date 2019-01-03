@@ -705,6 +705,8 @@ public class JedisUtil {
             }
         }catch (RuntimeException e){
             logger.error(e.getMessage());
+        }finally {
+            returnResource(jedis);
         }
     }
 
@@ -811,7 +813,7 @@ public class JedisUtil {
      * @param isBroken
      */
     public  void returnResource(Jedis jedis) {
-        //            jedisPool.close();
+        jedis.close();
     }
 
     /**

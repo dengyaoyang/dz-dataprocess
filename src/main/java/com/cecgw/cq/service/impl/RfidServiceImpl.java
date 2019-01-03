@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.time.LocalDateTime;
 
@@ -74,7 +75,7 @@ public class RfidServiceImpl implements RfidService{
                 eJson = JSON.toJSONString(endRfidObj);
                 //起点ip和终点ip进行配对
                 if (!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))){
-                    return;
+                    continue;
                 }
                 RFID_ANALYZE startRfidObj = startRfid.stream()
                                                      .filter(e->e.getEid().equals(endRfidObj.getEid()))
@@ -83,18 +84,19 @@ public class RfidServiceImpl implements RfidService{
                 //取到了就删除Redis中已得到的开始和结束数据
                 jedisUtil.delListVal("startRfid",sJson);
                 jedisUtil.delListVal("endRfid",eJson);
-                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
-                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
-                Date startDate = new Date(Long.valueOf(startStr));
-                Date endDate = new Date(Long.valueOf(endStr));
+//                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
+//                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
+                Date startDate = startRfidObj.getTime();
+                Date endDate = endRfid.get(i).getTime();
                 //判断2个时间发生在同一天
                 if (TimeUtil.getDayOfMouth(startDate) == TimeUtil.getDayOfMouth(endDate)) {
                     //判断结束时间是否大于起始时间
-                    if (TimeUtil.getDayOfSec(endDate)> TimeUtil.getDayOfSec(startDate)) {
-                        int timeDiff =TimeUtil.getDayOfSec(endDate) - TimeUtil.getDayOfSec(startDate);
+                    if (endDate.getTime() > startDate.getTime()) {
+                        long timeDiff = endDate.getTime() - startDate.getTime();
                         //根据时间差算速度.
                         double speed = Double.parseDouble(conf.get(j).getDistance())/(timeDiff);
-                        speedList.add(speed);
+                        BigDecimal bigDecimal = new BigDecimal(speed);
+                        speedList.add(bigDecimal.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
                     }
                 }
             }
@@ -137,8 +139,8 @@ public class RfidServiceImpl implements RfidService{
     }
 
     public static void main(String[] args) {
-        LocalDateTime startDate = TimeUtil.createRfcTime("1544603739000");
-        LocalDateTime endDate = TimeUtil.createRfcTime("1544603739000");
-        System.out.println(endDate.getSecond() - startDate.getSecond());
+        BigDecimal bigDecimal = new BigDecimal(5.843776378157262E-7);
+        System.out.println(bigDecimal.toPlainString());
+        System.out.println(bigDecimal.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
     }
 }
