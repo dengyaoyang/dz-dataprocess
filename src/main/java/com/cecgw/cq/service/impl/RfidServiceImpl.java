@@ -68,71 +68,85 @@ public class RfidServiceImpl implements RfidService{
         double resultAvg = 0.0;
         String sJson = "";
         String eJson = "";
+        String currentTime = LocalDateTime.now().format(TimeUtil.FUALLDATE).toString();
         for (int j=0;j<conf.size();j++) {
             //kafka 取数过滤逻辑 起始和结束的集合应该数一样多循环任意皆可
-            for (int i = 0; i < endRfid.size(); i++) {
-                RFID_ANALYZE endRfidObj = endRfid.get(i);
-                eJson = JSON.toJSONString(endRfidObj);
-                //起点ip和终点ip进行配对
-                if (!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))){
-                    continue;
-                }
-                RFID_ANALYZE startRfidObj = startRfid.stream()
-                                                     .filter(e->e.getEid().equals(endRfidObj.getEid()))
-                                                     .findAny().get();
-                sJson = JSON.toJSONString(startRfidObj);
-                //取到了就删除Redis中已得到的开始和结束数据
-                jedisUtil.delListVal("startRfid",sJson);
-                jedisUtil.delListVal("endRfid",eJson);
-//                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
-//                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
-                Date startDate = startRfidObj.getTime();
-                Date endDate = endRfid.get(i).getTime();
-                //判断2个时间发生在同一天
-                if (TimeUtil.getDayOfMouth(startDate) == TimeUtil.getDayOfMouth(endDate)) {
-                    //判断结束时间是否大于起始时间
-                    if (endDate.getTime() > startDate.getTime()) {
-                        long timeDiff = endDate.getTime() - startDate.getTime();
-                        //根据时间差算速度.
-                        double speed = Double.parseDouble(conf.get(j).getDistance())/(timeDiff);
-                        BigDecimal bigDecimal = new BigDecimal(speed);
-                        speedList.add(bigDecimal.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+            try {
+                for (int i = 0; i < endRfid.size(); i++) {
+                    RFID_ANALYZE endRfidObj = endRfid.get(i);
+                    eJson = JSON.toJSONString(endRfidObj);
+                    //起点ip和终点ip进行配对
+                    if (!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))){
+                        continue;
+                    }
+                    RFID_ANALYZE startRfidObj = startRfid.stream()
+                                                         .filter(e->e.getEid().equals(endRfidObj.getEid()))
+                                                         .findAny().get();
+                    sJson = JSON.toJSONString(startRfidObj);
+                    //取到了就删除Redis中已得到的开始和结束数据
+                    jedisUtil.delListVal("startRfid",sJson);
+                    jedisUtil.delListVal("endRfid",eJson);
+                    //                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
+                    //                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
+                    Date startDate = startRfidObj.getTime();
+                    Date endDate = endRfid.get(i).getTime();
+                    //判断2个时间发生在同一天
+                    if (TimeUtil.getDayOfMouth(startDate) == TimeUtil.getDayOfMouth(endDate)) {
+                        //判断结束时间是否大于起始时间
+                        if (endDate.getTime() > startDate.getTime()) {
+                            long timeDiff = endDate.getTime() - startDate.getTime();
+                            //根据时间差算速度.
+                            double speed = Double.parseDouble(conf.get(j).getDistance())/(timeDiff);
+                            BigDecimal bigDecimal = new BigDecimal(speed);
+                            speedList.add(bigDecimal.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+                        }
                     }
                 }
-            }
-            if (speedList.size()>0){
-                sumSpeed = speedList.stream().reduce((sum,indexVal)->sum+indexVal).get();
-                avg = sumSpeed/speedList.size();
-                Double finalAvg = avg;
-                pro = speedList.stream().map(n->Math.pow(n- finalAvg, 2)).reduce((x, y)->x+y).get();
-                fc =Math.sqrt(pro/speedList.size()-1);
-                double max = avg+fc;
-                double vmax = (max<200)?max:200;
-                double vmin = avg-fc;
-                for(double speed:speedList){
-                    if(speed>=vmin && speed<=vmax){
-                        resultSpdList.add(speed);
-                    }else if(speedList.size()==1){
-                        resultSpdList.add(speed);
-                    }
-                }
-                resultSumSpeed = resultSpdList.stream().reduce((x,y)->x+y).get();
                 if (speedList.size()>0){
-                    resultAvg = resultSumSpeed/resultSpdList.size();
+                    sumSpeed = speedList.stream().reduce((sum,indexVal)->sum+indexVal).get();
+                    avg = sumSpeed/speedList.size();
+                    Double finalAvg = avg;
+                    pro = speedList.stream().map(n->Math.pow(n- finalAvg, 2)).reduce((x, y)->x+y).get();
+                    fc =Math.sqrt(pro/speedList.size()-1);
+                    double max = avg+fc;
+                    double vmax = (max<200)?max:200;
+                    double vmin = avg-fc;
+                    for(double speed:speedList){
+                        if(speed>=vmin && speed<=vmax){
+                            resultSpdList.add(speed);
+                        }else if(speedList.size()==1){
+                            resultSpdList.add(speed);
+                        }
+                    }
+                    resultSumSpeed = resultSpdList.stream().reduce((x,y)->x+y).get();
+                    if (speedList.size()>0){
+                        resultAvg = resultSumSpeed/resultSpdList.size();
+                    }
+                    //插入速度表。。。。。。todo
+                    LINE_SPEED line_speed = new LINE_SPEED();
+                    line_speed.setLine_id(conf.get(j).getId());
+                    line_speed.setSpeed(String.valueOf(resultAvg));
+                    line_speed.setUpdate_time(currentTime);
+                    LINE_SPEED_HIS lineSpeedHis = new LINE_SPEED_HIS();
+                    lineSpeedHis.setLine_id(conf.get(j).getId());
+                    lineSpeedHis.setSpeed(String.valueOf(resultAvg));
+                    lineSpeedHis.setCreate_time (currentTime);
+                    lSpeedRep.save(line_speed);
+                    lSpeedHisRep.save(lineSpeedHis);
                 }
-                String currentTime = LocalDateTime.now().format(TimeUtil.FUALLDATE).toString();
-                //插入速度表。。。。。。todo
+            }catch (RuntimeException e){
                 LINE_SPEED line_speed = new LINE_SPEED();
                 line_speed.setLine_id(conf.get(j).getId());
-                line_speed.setSpeed(String.valueOf(resultAvg));
+                line_speed.setSpeed("-1");
                 line_speed.setUpdate_time(currentTime);
                 LINE_SPEED_HIS lineSpeedHis = new LINE_SPEED_HIS();
                 lineSpeedHis.setLine_id(conf.get(j).getId());
-                lineSpeedHis.setSpeed(String.valueOf(resultAvg));
+                lineSpeedHis.setSpeed("-1");
                 lineSpeedHis.setCreate_time (currentTime);
                 lSpeedRep.save(line_speed);
                 lSpeedHisRep.save(lineSpeedHis);
             }
+
         }
 
 
