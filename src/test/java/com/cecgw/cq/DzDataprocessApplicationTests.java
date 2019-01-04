@@ -32,6 +32,11 @@ public class DzDataprocessApplicationTests {
 		lSpeedRep.deleteAll();
 	}
 
+	@Test
+	public void  removeTargetLen(){
+		jedisUtil.getListMultValueAfterDel("ttt111");
+	}
+
 
 
 }

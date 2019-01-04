@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 
 /**
  * @author denghualin
@@ -74,7 +74,7 @@ public class RfidServiceImpl implements RfidService{
             try {
                 for (int i = 0; i < endRfid.size(); i++) {
                     RFID_ANALYZE endRfidObj = endRfid.get(i);
-                    eJson = JSON.toJSONString(endRfidObj);
+//                    eJson = JSON.toJSONString(endRfidObj);
                     //起点ip和终点ip进行配对
                     if (!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))){
                         continue;
@@ -82,10 +82,10 @@ public class RfidServiceImpl implements RfidService{
                     RFID_ANALYZE startRfidObj = startRfid.stream()
                                                          .filter(e->e.getEid().equals(endRfidObj.getEid()))
                                                          .findAny().get();
-                    sJson = JSON.toJSONString(startRfidObj);
+//                    sJson = JSON.toJSONString(startRfidObj);
                     //取到了就删除Redis中已得到的开始和结束数据
-                    jedisUtil.delListVal("startRfid",sJson);
-                    jedisUtil.delListVal("endRfid",eJson);
+//                    jedisUtil.delListVal("startRfid",sJson);
+//                    jedisUtil.delListVal("endRfid",eJson);
                     //                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
                     //                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
                     Date startDate = startRfidObj.getTime();
@@ -118,7 +118,10 @@ public class RfidServiceImpl implements RfidService{
                             resultSpdList.add(speed);
                         }
                     }
-                    resultSumSpeed = resultSpdList.stream().reduce((x,y)->x+y).get();
+                    Optional optional =  resultSpdList.stream().reduce((x,y)->x+y);
+                    if (optional.isPresent()) {
+                        resultSumSpeed = resultSpdList.stream().reduce((x,y)->x+y).get();
+                    }
                     if (speedList.size()>0){
                         resultAvg = resultSumSpeed/resultSpdList.size();
                     }
@@ -156,5 +159,9 @@ public class RfidServiceImpl implements RfidService{
         BigDecimal bigDecimal = new BigDecimal(5.843776378157262E-7);
         System.out.println(bigDecimal.toPlainString());
         System.out.println(bigDecimal.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+        List<Double> list = new ArrayList();
+        if (list.stream().reduce((x, y) -> x + y).isPresent()){
+            System.out.println(list.stream().reduce((x, y) -> x + y).get());
+        }
     }
 }

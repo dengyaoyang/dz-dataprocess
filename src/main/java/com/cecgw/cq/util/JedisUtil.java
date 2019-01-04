@@ -10,8 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -732,6 +736,64 @@ public class JedisUtil {
             returnResource(jedis);
         }
         return result;
+    }
+
+    public  List<String> getListMultValueAfterDel(String key,int start, int end){
+        List<Object> list = null;
+        List<String> listStr = new ArrayList<String>();
+        try {
+            Jedis jedis = getResource();
+            Transaction ts = jedis.multi();
+            ts.lrange(key, start, end);
+            ts.ltrim(key, end+1, -1);
+            list = ts.exec();
+            returnResource(jedis);
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println(e);
+        }
+        if(list != null && !list.isEmpty()){
+            try {
+                //获得命令lrange(key, start, end)的返回结果
+                listStr =  (ArrayList<String>)list.get(0);
+            } catch (Exception e) {
+                // TODO: handle exception
+                System.out.println(e);
+            }
+        } else {
+            return Collections.emptyList();
+        }
+        return listStr;
+    }
+
+    public  List<String> getListMultValueAfterDel(String key){
+        List<Object> list = null;
+        List<String> listStr = new ArrayList<String>();
+        try {
+            Jedis jedis = getResource();
+            Transaction ts = jedis.multi();
+            Response<Long> response = ts.llen(key);
+            Long end = response.get();
+            ts.lrange(key, 0, end);
+            ts.ltrim(key, end+1, -1);
+            list = ts.exec();
+            returnResource(jedis);
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println(e);
+        }
+        if(list != null && !list.isEmpty()){
+            try {
+                //获得命令lrange(key, start, end)的返回结果
+                listStr =  (ArrayList<String>)list.get(0);
+            } catch (Exception e) {
+                // TODO: handle exception
+                System.out.println(e);
+            }
+        } else {
+            return Collections.emptyList();
+        }
+        return listStr;
     }
 
     /**
