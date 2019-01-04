@@ -65,7 +65,7 @@ public class RfidServiceImpl implements RfidService{
         //最终计算好以后的速度集合
         List<Double> resultSpdList = Lists.newArrayList();
         Double resultSumSpeed = 0.0;
-        double resultAvg = 0.0;
+        Double resultAvg = 0.0;
         String sJson = "";
         String eJson = "";
         String currentTime = LocalDateTime.now().format(TimeUtil.FUALLDATE).toString();
@@ -128,12 +128,17 @@ public class RfidServiceImpl implements RfidService{
                     //插入速度表。。。。。。todo
                     LINE_SPEED line_speed = new LINE_SPEED();
                     line_speed.setLine_id(conf.get(j).getId());
-                    line_speed.setSpeed(String.valueOf(resultAvg));
-                    line_speed.setUpdate_time(currentTime);
                     LINE_SPEED_HIS lineSpeedHis = new LINE_SPEED_HIS();
                     lineSpeedHis.setLine_id(conf.get(j).getId());
-                    lineSpeedHis.setSpeed(String.valueOf(resultAvg));
                     lineSpeedHis.setCreate_time (currentTime);
+                    if (resultAvg.isNaN()){
+                        line_speed.setSpeed("-1");
+                        lineSpeedHis.setSpeed("-1");
+                    }else {
+                        lineSpeedHis.setSpeed(String.valueOf(resultAvg));
+                        line_speed.setSpeed(String.valueOf(resultAvg));
+                    }
+                    line_speed.setUpdate_time(currentTime);
                     lSpeedRep.save(line_speed);
                     lSpeedHisRep.save(lineSpeedHis);
                 }
