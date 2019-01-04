@@ -1,5 +1,6 @@
 package com.cecgw.cq;
 
+import com.cecgw.cq.dao.GenericDao;
 import com.cecgw.cq.repository.LSpeedRep;
 import com.cecgw.cq.util.JedisUtil;
 import org.junit.Test;
@@ -7,6 +8,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -16,6 +21,8 @@ public class DzDataprocessApplicationTests {
     JedisUtil jedisUtil;
 	@Autowired
 	LSpeedRep lSpeedRep;
+	@Autowired
+	GenericDao genericDao;
 
 //	@Test
 //	public void contextLoads() {
@@ -37,6 +44,16 @@ public class DzDataprocessApplicationTests {
 		jedisUtil.getListMultValueAfterDel("ttt111");
 	}
 
+	@Test
+	public void testGetCurRfid(){
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar time=Calendar.getInstance();
+		time.add(Calendar.MINUTE,-10);
+		String endTime = df.format(time.getTime());
+		time.add(Calendar.MINUTE,-5);
+		String starTime = df.format(time.getTime());
+		genericDao.getCurRfid(starTime,endTime);
+	}
 
 
 }
