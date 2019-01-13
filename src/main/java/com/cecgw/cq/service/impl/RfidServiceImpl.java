@@ -50,7 +50,6 @@ public class RfidServiceImpl implements RfidService{
         List<String> startRifdJ = jedisUtil.getList("startRfid");
         List<String> endRifdJ = jedisUtil.getList("endRfid");
         List<String> confJ = jedisUtil.getList("speedConf");
-        List<Double> speedList = Lists.newArrayList();
         //Json转对象
         List<RFID_ANALYZE> startRfid = JSONArray.parseArray(startRifdJ.toString(), RFID_ANALYZE.class);
         List<RFID_ANALYZE> endRfid = JSONArray.parseArray(endRifdJ.toString(),RFID_ANALYZE.class);
@@ -70,6 +69,7 @@ public class RfidServiceImpl implements RfidService{
         String eJson = "";
         String currentTime = LocalDateTime.now().format(TimeUtil.FUALLDATE).toString();
         for (int j=0;j<conf.size();j++) {
+            List<Double> speedList = Lists.newArrayList();
             //kafka 取数过滤逻辑 起始和结束的集合应该数一样多循环任意皆可
             try {
                 for (int i = 0; i < endRfid.size(); i++) {
@@ -96,14 +96,15 @@ public class RfidServiceImpl implements RfidService{
                         if (endDate.getTime() > startDate.getTime()) {
                             long timeDiff = endDate.getTime() - startDate.getTime();
                             //根据时间差算速度.
-                            double speed = Double.parseDouble(conf.get(j).getDistance())/(timeDiff);
+                            double speed = Double.parseDouble(conf.get(j).getDistance())/TimeUtil.covertsecTohour(timeDiff);
                             BigDecimal bigDecimal = new BigDecimal(speed);
-                            speedList.add(bigDecimal.setScale(2,BigDecimal.ROUND_DOWN).doubleValue());
+                            speedList.add(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                         }
                     }
                 }
                 if (speedList.size()>0){
-                    sumSpeed = speedList.stream().reduce((sum,indexVal)->sum+indexVal).get();
+                    sumSpeed = speedList.stream().reduce((x, y) ->new BigDecimal(x).add(new BigDecimal(y))
+                                                                                   .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue()).get();
                     avg = sumSpeed/speedList.size();
                     Double finalAvg = avg;
                     pro = speedList.stream().map(n->Math.pow(n- finalAvg, 2)).reduce((x, y)->x+y).get();
@@ -161,12 +162,15 @@ public class RfidServiceImpl implements RfidService{
     }
 
     public static void main(String[] args) {
-        BigDecimal bigDecimal = new BigDecimal(5.843776378157262E-7);
-        System.out.println(bigDecimal.toPlainString());
-        System.out.println(bigDecimal.setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+        Double d = new Double(9.0);
         List<Double> list = new ArrayList();
+        list.add(10.11);
+        list.add(20.55);
+        list.add(12.32);
+        list.add(50.73);
         if (list.stream().reduce((x, y) -> x + y).isPresent()){
-            System.out.println(list.stream().reduce((x, y) -> x + y).get());
+            System.out.println(list.stream().reduce((x, y) ->new BigDecimal(x).add(new BigDecimal(y))
+                                                                              .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue()).get());
         }
     }
 }
