@@ -3,6 +3,7 @@ package com.cecgw.cq.util;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
@@ -93,11 +94,7 @@ public class TimeUtil {
     }
 
 
-    public static void main(String[] args) throws ParseException {
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EE MM dd HH:mm:ss zzz yyyy");
 
-
-    }
     /**
      * 字符串转日期
      * @param dateStr
@@ -148,4 +145,15 @@ public class TimeUtil {
         return calendar.get(Calendar.SECOND);
     }
 
+    //换算时间 把毫秒换算成小时
+    public static double covertsecTohour(long sec){
+        BigDecimal minue = new BigDecimal(sec).divide(new BigDecimal(1000),5,BigDecimal.ROUND_HALF_UP)
+                                              .divide(new BigDecimal(60),5,BigDecimal.ROUND_HALF_UP);
+        BigDecimal hour = new BigDecimal(60);
+        return minue.divide(hour,5,BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(TimeUtil.covertsecTohour(15000));
+    }
 }
