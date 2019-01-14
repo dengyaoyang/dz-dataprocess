@@ -1,6 +1,5 @@
 package com.cecgw.cq.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.cecgw.cq.entity.LINE_SPEED;
 import com.cecgw.cq.entity.LINE_SPEED_CONF;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.time.LocalDateTime;
 
 import java.util.ArrayList;
@@ -76,17 +74,24 @@ public class RfidServiceImpl implements RfidService{
                     RFID_ANALYZE endRfidObj = endRfid.get(i);
 //                    eJson = JSON.toJSONString(endRfidObj);
                     //起点ip和终点ip进行配对
-                    if (!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))){
+
+                    Optional<RFID_ANALYZE> op = startRfid.stream()
+                             .filter(e->e.getEid().equals(endRfidObj.getEid()))
+                             .findAny();
+                    if (!op.isPresent()){
                         continue;
                     }
-                    RFID_ANALYZE startRfidObj = startRfid.stream()
-                                                         .filter(e->e.getEid().equals(endRfidObj.getEid()))
-                                                         .findAny().get();
+                    RFID_ANALYZE startRfidObj = op.get();
+                    if ((!startRfid.stream().anyMatch(e->e.getEid().equals(endRfidObj.getEid()))
+                            )||!conf.get(j).getStart_ip().equals(startRfidObj.getReaderip())
+                            ||!conf.get(j).getEnd_ip().equals(endRfidObj.getReaderip())){
+                        continue;
+                    }
 //                    sJson = JSON.toJSONString(startRfidObj);
                     //取到了就删除Redis中已得到的开始和结束数据
 //                    jedisUtil.delListVal("startRfid",sJson);
 //                    jedisUtil.delListVal("endRfid",eJson);
-                    //                String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
+                    // String startStr = TimeUtil.formatDate(startRfidObj.getTime(),TimeUtil.FULL_CODE);
                     //                String endStr = TimeUtil.formatDate(endRfid.get(i).getTime(),TimeUtil.FULL_CODE);
                     Date startDate = startRfidObj.getTime();
                     Date endDate = endRfid.get(i).getTime();
@@ -155,10 +160,7 @@ public class RfidServiceImpl implements RfidService{
                 lSpeedRep.save(line_speed);
                 lSpeedHisRep.save(lineSpeedHis);
             }
-
         }
-
-
     }
 
     public static void main(String[] args) {
