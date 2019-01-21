@@ -147,6 +147,18 @@ public class RfidServiceImpl implements RfidService{
                     line_speed.setUpdate_time(currentTime);
                     lSpeedRep.save(line_speed);
                     lSpeedHisRep.save(lineSpeedHis);
+                }else {
+                    //如果没数据也给当前路段速度-1
+                    LINE_SPEED line_speed = new LINE_SPEED();
+                    line_speed.setLine_id(conf.get(j).getId());
+                    line_speed.setSpeed("-1");
+                    line_speed.setUpdate_time(currentTime);
+                    LINE_SPEED_HIS lineSpeedHis = new LINE_SPEED_HIS();
+                    lineSpeedHis.setLine_id(conf.get(j).getId());
+                    lineSpeedHis.setSpeed("-1");
+                    lineSpeedHis.setCreate_time (currentTime);
+                    lSpeedRep.save(line_speed);
+                    lSpeedHisRep.save(lineSpeedHis);
                 }
             }catch (RuntimeException e){
                 LINE_SPEED line_speed = new LINE_SPEED();
